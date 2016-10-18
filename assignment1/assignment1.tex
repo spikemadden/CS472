@@ -1,0 +1,71 @@
+\documentclass[letterpaper,10pt,titlepage]{article}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage{alltt}
+\usepackage{float}
+\usepackage{color}
+\usepackage{url}
+
+\usepackage{balance}
+\usepackage[TABBOTCAP, tight]{subfigure}
+\usepackage{enumitem}
+\usepackage{pstricks, pst-node}
+
+\usepackage{geometry}
+\geometry{textheight=8.5in, textwidth=6in}
+
+%random comment
+
+\newcommand{\cred}[1]{{\color{red}#1}}
+\newcommand{\cblue}[1]{{\color{blue}#1}}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\def\name{Spike Madden}
+
+%pull in the necessary preamble matter for pygments output
+
+%% The following metadata will show up in the PDF properties
+\hypersetup{
+  colorlinks = true,
+  urlcolor = black,
+  pdfauthor = {\name},
+  pdfkeywords = {cs472 `computer architecture''},
+  pdftitle = {CS 472 Assignment 1},
+  pdfsubject = {CS 472 Assignment 1},
+  pdfpagemode = UseNone
+}
+
+\begin{document}
+
+\subsection*{Spike Madden}
+
+\subsubsection*{Describe the difference between architecture and organization.}
+Computer organization deals with the components in the system. It implements the needs of the architecture and the methods of low level design issues. Architecture is the interface between the hardware and software. It abstracts the details of the organization and describes what the computer can do. The architecture describes what the computer does and the organization is how it's implemented.
+
+\subsubsection*{Describe the concept of endianness.}
+Endianness is the order of the bytes in computer memory. The two most common variants of endianness are big-endian and little-endian. Big-endian refers to the order w here the most significant byte is at the lowest address. The other bytes follow in decreasing order. Little-endian is where the least significant byte is at the lowest address. The other bytes follow in increasing order of significance. The Intel x86 and x86-64 series of processors use the little-endian format.
+The Motorola 68000 series, SuperH, IBM z/Architecture and Atmel AVR32 use the big-endian format.
+
+\subsubsection*{Give the IEEE 754 floating point format for both single and double precision}
+
+\begin{itemize}
+  \item The sign bit is 0 for positive, 1 for negative.
+  \item The exponent base is 2.
+  \item The exponent field contains 127 + the true exponent for single precision, or 1023 + the true exponent for double precision.
+\end{itemize}
+
+\subsubsection*{Describe the concept of the memory hierarchy. What levels of the hierarchy are present on flip.engr.oregonstate.edu?}
+
+Memory hierarchy is the separation of each level of computer storage based on response time. There are three levels on the Oregon State engineering server. Using `lscpu` we get L1d and L1i cache of 32K, L2 cache of 256K and L3 cache of 20480K. The program I wrote resulted in similar values as well.
+
+\subsubsection*{What streaming SIMD instruction levels are present on flip.engr.oregonstate.edu?}
+
+Opening up `/proc/info` lets us see that sse4 2 shows up. This means that Streaming SIMD Extensions 4 is supported.
+
+\end{document}
