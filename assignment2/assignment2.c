@@ -1,3 +1,11 @@
+/*
+Worked with:
+McKenna Jones, Zach Iverson
+
+Code referenced for software addition and subtraction:
+https://github.com/allforlove901/CPE-315-Lab-1/blob/master/CPE315_Lab1/
+*/
+
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -29,6 +37,147 @@ double myfrexp(double value, int* exponent) {
 
   if (sign == 1)
     result *= -1;
+
+  return result;
+}
+
+long long extract_double(double value, int* sign, int* exponent) {
+  unsigned long long extract = *(unsigned long long *) &value;
+
+  // sign
+  int positive_or_negative = extract >> 63;
+  *sign = positive_or_negative;
+
+  // exponent
+  int exp = ((extract >> 52) & 0x7FF) - 1023;
+  *exponent = exp;
+
+  // fraction
+  long long fraction = (extract << 10) & 0x3FFFFFFFFFFFFC00;
+  fraction |= 0x4000000000000000;
+
+  if (*sign == 1)
+    fraction *= -1;
+
+  return fraction;
+}
+
+double newmyadd(double first, double second) {
+  int first_sign, second_sign;
+  int first_exponent, second_exponent;
+  int exp_difference;
+
+  long long sum_sign, sum_exponent;
+  long long first_fraction, second_fraction, sum_fraction;
+
+  first_fraction = extract_double(first, &first_sign, &first_exponent);
+  second_fraction = extract_double(second, &second_sign, &second_exponent);
+
+  exp_difference = first_exponent - second_exponent;
+
+  // adjust exponents
+  if (exp_difference > 0) {
+    second_fraction >>= exp_difference;
+    second_exponent += exp_difference;
+  }
+
+  else if (exp_difference < 0) {
+    exp_difference *= -1;
+    first_fraction >>= exp_difference;
+    first_exponent += exp_difference;
+  }
+
+  // prevent overflow
+  if ((first_fraction >> 1) + (second_fraction >> 1) < 0) {
+    sum_sign = 0x8000000000000000;
+  }
+
+  sum_fraction = (first_fraction >> 1) + (second_fraction >> 1);
+  sum_exponent = first_exponent + 1;
+
+  // normalize
+  long long sign_compare;
+  sign_compare = sum_fraction >> 1;
+
+  if (sum_fraction != 0) {
+    while(((sum_fraction ^ sign_compare) & 0x4000000000000000) == 0) {
+      sum_fraction <<= 1;
+      sum_exponent--;
+    }
+  }
+
+  unsigned long long dub = 0;
+  double result = 0;
+
+  dub |= (sum_sign & 0x8000000000000000);
+
+  sum_exponent += 1023;
+  dub |= (sum_exponent << 52);
+
+  sum_fraction >>= 10;
+  dub |= (sum_fraction) & 0xFFFFFFFFFFFFF;
+
+  result = *((double*)&dub);
+
+  return result;
+}
+
+double newmysubtract(double first, double second) {
+  int first_sign, second_sign;
+  int first_exponent, second_exponent;
+  int exp_difference;
+
+  long long sum_sign, sum_exponent;
+  long long first_fraction, second_fraction, sum_fraction;
+
+  first_fraction = extract_double(first, &first_sign, &first_exponent);
+  second_fraction = extract_double(second, &second_sign, &second_exponent);
+
+  exp_difference = first_exponent - second_exponent;
+
+  // adjust exponents
+  if (exp_difference > 0) {
+    second_fraction >>= exp_difference;
+    second_exponent += exp_difference;
+  }
+
+  else if (exp_difference < 0) {
+    exp_difference *= -1;
+    first_fraction >>= exp_difference;
+    first_exponent += exp_difference;
+  }
+
+  // prevent overflow
+  if ((first_fraction >> 1) + (second_fraction >> 1) < 0) {
+    sum_sign = 0x8000000000000000;
+  }
+
+  sum_fraction = (first_fraction >> 1) - (second_fraction >> 1);
+  sum_exponent = first_exponent + 1;
+
+  // normalize
+  long long sign_compare;
+  sign_compare = sum_fraction >> 1;
+
+  if (sum_fraction != 0) {
+    while(((sum_fraction ^ sign_compare) & 0x4000000000000000) == 0) {
+      sum_fraction <<= 1;
+      sum_exponent--;
+    }
+  }
+
+  unsigned long long dub = 0;
+  double result = 0;
+
+  dub |= (sum_sign & 0x8000000000000000);
+
+  sum_exponent += 1023;
+  dub |= (sum_exponent << 52);
+
+  sum_fraction >>= 10;
+  dub |= (sum_fraction) & 0xFFFFFFFFFFFFF;
+
+  result = *((double*)&dub);
 
   return result;
 }
@@ -166,6 +315,7 @@ int main() {
     // part 1: frexp
     double test = 123.45;
     int exponent;
+    int signeroni;
     double real = frexp(test, &exponent);
     printf("frexp() returns %f * 2^%d\n", real, exponent);
     double my_result = myfrexp(test, &exponent);
@@ -174,8 +324,8 @@ int main() {
     // part 2: floating point operations
     unsigned long long start, end;
     double sum, difference, product, quotient, root;
-    double num1 = 4.5;
-    double num2 = 2.1;
+    double num1 = 8.0;
+    double num2 = 1.5;
     int i = 0;
 
     printf("%s\n", "*** Printing FPU based implementation ***");
@@ -235,7 +385,7 @@ int main() {
 
     start = rdtsc();
     for (i = 0; i < 100; i++) {
-      sum = myadd(num1, num2);
+      sum = newmyadd(num1, num2);
     }
     end = rdtsc();
 
@@ -244,7 +394,7 @@ int main() {
 
     start = rdtsc();
     for (i = 0; i < 100; i++) {
-      difference = mysubstract(num1, num2);
+      difference = newmysubtract(num1, num2);
     }
     end = rdtsc();
 

@@ -1,0 +1,57 @@
+\documentclass[letterpaper,10pt,titlepage]{article}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage{alltt}
+\usepackage{float}
+\usepackage{color}
+\usepackage{url}
+
+\usepackage{balance}
+\usepackage[TABBOTCAP, tight]{subfigure}
+\usepackage{enumitem}
+\usepackage{pstricks, pst-node}
+
+\usepackage{geometry}
+\geometry{textheight=8.5in, textwidth=6in}
+
+%random comment
+
+\newcommand{\cred}[1]{{\color{red}#1}}
+\newcommand{\cblue}[1]{{\color{blue}#1}}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\def\name{Spike Madden}
+
+%pull in the necessary preamble matter for pygments output
+
+%% The following metadata will show up in the PDF properties
+\hypersetup{
+  colorlinks = true,
+  urlcolor = black,
+  pdfauthor = {\name},
+  pdfkeywords = {cs472 `computer architecture''},
+  pdftitle = {CS 472 Assignment 1},
+  pdfsubject = {CS 472 Assignment 1},
+  pdfpagemode = UseNone
+}
+
+\begin{document}
+
+\subsection*{Spike Madden\\}
+
+\subsection*{How to run}
+Make should create the PDF and execute the program.
+
+\subsection*{What I learned}
+It's really annoying to work with floating point when you can't use the built in arithmetic functions. Also that software implemented floating point arithmetic is insanely slow compared to the FPU based implementation. I actually did learn a lot about the types in C and the formatting of the bits when it comes to IEEE floating point representation. I learned to use rdtsc for timing; I had only used clock() in c++ for timing so far.
+
+\subsection*{What I had trouble with}
+It took me a really long time to understand how the mantissa and exponent portions of the floating point representation worked. The shifting and masking to get certain bits made sense when it came to getting certain parts of the floating point number (sign, exponent, fraction)  but became overwhelming when I had to keep track of multiple sections of bits to do calculations
+
+\end{document}
