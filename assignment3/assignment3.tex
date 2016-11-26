@@ -1,0 +1,99 @@
+\documentclass[letterpaper,10pt,titlepage]{article}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage{alltt}
+\usepackage{float}
+\usepackage{color}
+\usepackage{url}
+
+\usepackage{balance}
+\usepackage[TABBOTCAP, tight]{subfigure}
+\usepackage{enumitem}
+\usepackage{pstricks, pst-node}
+
+\usepackage{geometry}
+\geometry{textheight=8.5in, textwidth=6in}
+
+%random comment
+
+\newcommand{\cred}[1]{{\color{red}#1}}
+\newcommand{\cblue}[1]{{\color{blue}#1}}
+
+\usepackage{hyperref}
+\usepackage{geometry}
+
+\def\name{Spike Madden}
+\title{CS 472 Assignment 3}
+\author{Spike Madden}
+\date{November 21, 2016}
+
+%% The following metadata will show up in the PDF properties
+\hypersetup{
+  colorlinks = true,
+  urlcolor = black,
+  pdfauthor = {\name},
+  pdfkeywords = {cs472 `computer architecture''},
+  pdftitle = {CS 472 Assignment 3},
+  pdfsubject = {CS 472 Assignment 3},
+  pdfpagemode = UseNone
+}
+
+\begin{document}
+
+\maketitle
+\pagebreak
+
+\section*{Part 1}
+\subsection*{Paging Calculations}
+4KB page \\
+32 bit address space \\
+10 byte entries \\
+
+\noindent(2\^{}32) / (2\^{}12) = 2\^{}20 * 10 = 10.48576 MB \\
+
+\noindent4 KB page \\
+64 bit address space \\
+10 byte entries \\
+
+\noindent(2\^{}64) / (2\^{}12) = 2\^{}52 * 10 = 4.504 * 10\^{}10 MB = 40 PB \\
+
+\noindent8 KB page \\
+32 bit address space \\
+10 byte entries \\
+
+\noindent(2\^{}32) / (2\^{}13) = 2\^{}19 * 10 = 5.24288 MB \\
+
+\noindent8 KB page \\
+64 bit address space \\
+10 byte entries \\
+
+\noindent(2\^{}64) / (2\^{}13) = 2\^{}51 * 10 = 2.252 * 10\^{}10 MB = 20 PB \\
+
+\subsection*{Pipelining}
+Pipelining is the concept of having data processing units in series where these units can be executed in parallel. This execution of instructions in a process out of order allows for an increase in efficiency. The RISC pipeline, a five stage execution instruction pipeline, consists of the instruction fetch, instruction decode, execute, memory access and writeback stages. Since all instructions share the same stage,  all 5 steps can be done in a single cycle. It's important to note that pipelining doesn't decrease the time it takes to process a single data element. The increase in efficiency comes from the increase in throughput. With HTTP pipelining, we can send multiple requests without waiting for the response of the first request. We increase the throughput of the system when processing the stream of requests.
+
+\subsection*{IA-32e}
+IA-32e is Intel's implementation of x86-64; the 64 bit version of the x86 instruction set. Compared to the previous 32 bit architectures, x86-64 supports up to 2\^{}64 bytes of virtual and physical memory. x86-64 uses 48 bits and legacy mode's physical address extension allows for 52 bit addresses. 64 bit architectures commonly have 3 to 4 page levels to decrease RAM usage. With 32 bits, only 4GB of RAM can be addressed. With physical address extension, Intel added 4 address lines so that 64 GB of RAM could be addressed. Page sizes can also be increased from 4K to 4M with page size extension. A table of page table entries create the page table, whose format is fixed by the hardware. There's also a Translation Lookahead Buffer, or TLB, that is a cache for paging addresses. When TLB is full, older addresses that are least recently used are overwritten.\cite{ia32e}
+
+\pagebreak
+
+\section*{Part 2}
+\subsection*{Memory Optimization}
+Specifically, this powerpoint looks at cache optimization. The three C's of cache misses are compulsory, capacity and conflict. Compulsory misses are unavoidable misses when data is read for the very first time. Capacity misses are when there's not enough cache space to hold all active data. Conflict misses are cache thrashing due to data mapping to same cache lines. The three R's that help combat the three C's are rearrange, reduce and reuse. Rearranging code and data changes the layout to increase spatial locality. Reduce the size and number of cache lines read through smaller formats and compression. Reusing cache lines also increases temporal and spatial locality. \\
+
+\noindent A couple methods of data cache optimization are covered. Prefetching and preloading can be used before processing data. Field reordering, or grouping elements that are likely accessed together and hot/cold splitting can increase coherence. Tree data structures can be rearranged and reduced. Linear data is the best possible spatial locality and is easily prefetchable. Data should be linearized at runtime. Aim to allocate memory from pools, not the heap. Free allocated memory as soon as it's reasonable to do so, and reuse immediately. Stay away from bad aliasing with better languages, better compilers and better programmers. \\
+
+\subsection*{What Every Programmer Should Know About Memory}
+ A virtual address space is implemented by the Memory Management Unit of the CPU while the OS fills out the pages table data structures. Address translation is how virtual address are mapped to a physical address. The OS allocates contiguous physical memory and stores the base address of this block in a register. Bits of the virtual address are used as an index into the page directory, an array of directory entities. Multiple level page tables solves the issue of a table with 2\^{}20 entries. This allows for a compact representation which allows for page tables for many processes in memory. \\
+
+\noindent Page table access can be optimized with the use of a translation look aside buffer (TLB). The TLB is a global resource where all threads and processes executed on the processor core use the same TLB. But since the translation of virtual to physical addresses depends on the page table tree, the CPU can't reuse the cached entries. The TLB can be flushed whenever the page table tree is changed, and while this is effective, it's also expensive. Tag extension for TLB access is the more optimal solution. By adding a unique identifier for each page table tree, the TLB doesn't have to be completely flushed. Since the number of address spaces greatly outweighs the number of available TLB tag bits, identifiers have to be reused. In this case, the TLB needs to be partially flushed. Which is unfortunate, but still a lot better than flushing the entire TLB every single time. TLB performance is heavily affected by the size of the pages. A larger page size reduces the overall number of address translations as there are more instructions on each page. Which means that there are fewer entries in the TLB cache. These memory regions used for these large pages have to be contiguous  and memory could be wasted if the unit size of physical memory is set to the size of the virtual memory pages. It's not practical to increase the unit size to absurd sizes but it's also not possible to break down these huge pages into contiguous small pages in physical memory. In Linux, huge pages at system start time are allocated using the hugetlbfs filesystem. \\
+
+\pagebreak
+
+\bibliographystyle{IEEEtran}
+\bibliography{assignment3}
+\end{document}
