@@ -1,6 +1,6 @@
 FILE = assignment3
 
-all: writeup program
+all: writeup endian cache
 
 writeup:
 	latex $(FILE).tex
@@ -10,9 +10,13 @@ writeup:
 	dvips -R -Poutline -t letter $(FILE).dvi -o $(FILE).ps
 	ps2pdf $(FILE).ps
 
-program:
-	gcc endian.c -g -std=c99 -o assignment3
-	exec ./assignment3
+endian:
+	gcc endian.c -g -std=c99 -o endian
+	exec ./endian
+
+cache:
+	gcc cache.c -g -std=c99 -o cache
+	exec ./cache
 
 clean:
-	rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg assignment3
+	rm -f *.pdf *.ps *.dvi *.out *.log *.aux *.bbl *.blg *.pyg endian cache
